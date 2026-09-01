@@ -35,5 +35,6 @@ The idea is simple:
 
 1. **Clone the repo:**
    ```bash
-   git clone [https://github.com/QuentinRauschenbach/accent-geoguessr.git](https://github.com/QuentinRauschenbach/accent-geoguessr.git)
+   git clone https://github.com/QuentinRauschenbach/accent-geoguessr.git
    cd accent-geoguessr
+   streamlit run app.py
