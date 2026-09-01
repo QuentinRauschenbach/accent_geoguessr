@@ -304,7 +304,7 @@ if params.get("role") == "teacher":
             # LOBBY / WAITING ROOM SCREEN WITH AUTOMATIC QR CODE
             elif store["active_round_idx"] == -1:
                 st.header("Welcome to Accent GeoGuessr!")
-                st.subheader("Scan the QR Code or type the URL on your device to join!")
+                #st.subheader("Scan the QR Code or type the URL on your device to join!")
                 
                 col_qr, col_lobby1, col_lobby2 = st.columns([1, 1, 1])
                 
