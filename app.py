@@ -12,9 +12,10 @@ st.set_page_config(page_title="Accent GeoGuessr", layout="wide")
 if not os.path.exists("clips"):
     os.makedirs("clips")
 
-# ==========================================
-# AUTOMATIC ONLINE URL / QR CODE GENERATOR
-# ==========================================
+# Set your secret teacher passcode here
+TEACHER_PASSWORD = "0712"
+
+# Automatically construct the public web URL for the QR code
 host_url = st.context.headers.get("host", "localhost:8501")
 STUDENT_JOIN_URL = f"https://{host_url}"
 
@@ -63,7 +64,7 @@ def calculate_scores(guesses_df, target_lat, target_lon):
     if guesses_df.empty:
         return guesses_df
         
-    R = 6371.0
+    R = 6371.0  # Earth radius in km
     lats = guesses_df['lat'].astype(float).values
     lons = guesses_df['lon'].astype(float).values
     
@@ -78,7 +79,8 @@ def calculate_scores(guesses_df, target_lat, target_lon):
     c = 2 * np.arcsin(np.sqrt(a))
     distances = R * c
     
-    scores = np.clip(5000 - (distances * 1.0), 0, 5000).astype(int)
+    # ADJUSTED FOR GLOBAL ACCENTS: Subtracts 0.25 pts per km (reaches 0 at 20,000 km)
+    scores = np.clip(5000 - (distances * 0.5), 0, 5000).astype(int)
     guesses_df['distance_km'] = np.round(distances, 1)
     guesses_df['score'] = scores
     return guesses_df.sort_values(by='score', ascending=False)
@@ -160,6 +162,22 @@ def poll_student_waiting_state():
 # 4. TEACHER VIEW (?role=teacher)
 # ==========================================
 if params.get("role") == "teacher":
+    
+    # PASSCODE GATEKEEPER
+    if "teacher_authenticated" not in st.session_state:
+        st.session_state.teacher_authenticated = False
+        
+    if not st.session_state.teacher_authenticated:
+        st.title("🔒 Teacher Access Required")
+        pass_input = st.text_input("Enter Passcode:", type="password")
+        if st.button("Unlock Panel"):
+            if pass_input == TEACHER_PASSWORD:
+                st.session_state.teacher_authenticated = True
+                st.rerun()
+            else:
+                st.error("Incorrect passcode!")
+        st.stop()
+        
     st.title("🎯 Accent GeoGuessr — Teacher Panel")
     
     tab1, tab2 = st.tabs(["📝 Pre-Class Setup", "📺 Live Projector Screen"])
@@ -168,7 +186,6 @@ if params.get("role") == "teacher":
     with tab1:
         st.subheader("1. Add Media & Create Playlist")
         
-        # --- NEW BROWSER FILE UPLOADER BACKUP ---
         with st.expander("📤 Upload New Media Clip (Backup Method for Online Hosting)", expanded=True):
             uploaded_file = st.file_uploader(
                 "Drag & drop an audio or video clip from your laptop:",
