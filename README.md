@@ -37,4 +37,13 @@ The idea is simple:
    ```bash
    git clone https://github.com/QuentinRauschenbach/accent-geoguessr.git
    cd accent-geoguessr
-   streamlit run app.py
+   ```
+2. Install requirements:
+    ```bash
+   pip install -r requirements.txt
+   ```
+3. Launch the app:
+    ```bash
+   streamlit run app.py 
+   ```
+
