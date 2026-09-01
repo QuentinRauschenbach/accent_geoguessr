@@ -1,8 +1,8 @@
-# 🎙️ Accent GeoGuessr
+# Accent GeoGuessr
 
 A fun, lightweight web app built for the English classroom to turn accent recognition into a GeoGuessr-style game! 
 
-## 💡 What is this?
+## What is this?
 The idea is simple:
 1. **The Teacher** projects a video or audio clip of someone speaking English from anywhere in the world.
 2. **The Students** scan a QR code on the projector using their phones, open a map, and try to guess where the speaker is from by dropping a pin.
