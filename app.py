@@ -441,7 +441,7 @@ if params.get("role") == "teacher":
                                 store["show_leaderboard"] = False
                                 st.rerun()
                         else:
-                            if st.button("🏆 Show Grand Finale Standings!", type="primary", use_container_width=True):
+                            if st.button("🏆 Show Final Scores!", type="primary", use_container_width=True):
                                 store["show_grand_finale"] = True
                                 st.rerun()
 
