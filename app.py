@@ -128,7 +128,7 @@ params = st.query_params
 # ==========================================
 @st.fragment(run_every=2)
 def poll_teacher_lobby():
-    st.metric(label="Players Connected 👥", value=len(store["joined_students"]))
+    st.metric(label="Players Connected", value=len(store["joined_students"]))
     if store["joined_students"]:
         st.write("**Joined Players:**")
         st.write(", ".join(sorted(store["joined_students"])))
@@ -186,7 +186,7 @@ if params.get("role") == "teacher":
     with tab1:
         st.subheader("1. Add Media & Create Playlist")
         
-        with st.expander("📤 Upload New Media Clip (Backup Method for Online Hosting)", expanded=True):
+        with st.expander("Upload New Media Clip (Backup Method for Online Hosting)", expanded=True):
             uploaded_file = st.file_uploader(
                 "Drag & drop an audio or video clip from your laptop:",
                 type=["mp3", "mp4", "wav", "m4a"]
@@ -295,16 +295,16 @@ if params.get("role") == "teacher":
             st.warning("No rounds created yet! Add rounds in the 'Pre-Class Setup' tab first.")
         else:
             if not store["game_started"]:
-                st.info("👋 Game is not started yet.")
-                if st.button("🎬 OPEN STUDENT LOBBY", type="primary"):
+                st.info("Game is not started yet.")
+                if st.button("OPEN STUDENT LOBBY", type="primary"):
                     store["game_started"] = True
                     store["active_round_idx"] = -1
                     st.rerun()
 
             # LOBBY / WAITING ROOM SCREEN WITH AUTOMATIC QR CODE
             elif store["active_round_idx"] == -1:
-                st.header("🎉 Welcome to Accent GeoGuessr! 🎉")
-                st.subheader("📱 Scan the QR Code or type the URL on your device to join!")
+                st.header("Welcome to Accent GeoGuessr!")
+                st.subheader("Scan the QR Code or type the URL on your device to join!")
                 
                 col_qr, col_lobby1, col_lobby2 = st.columns([1, 1, 1])
                 
@@ -319,8 +319,8 @@ if params.get("role") == "teacher":
                     poll_teacher_lobby()
 
                 with col_lobby2:
-                    st.markdown("### 🚀 Controls")
-                    if st.button("Begin Round 1! 🏁", type="primary", use_container_width=True):
+                    st.markdown("### Controls")
+                    if st.button("Begin Round 1!", type="primary", use_container_width=True):
                         store["active_round_idx"] = 0
                         st.rerun()
 
@@ -332,7 +332,7 @@ if params.get("role") == "teacher":
                 
                 # SCREEN MODE A: GRAND FINALE PODIUM
                 if store["show_grand_finale"]:
-                    st.header("🏆 GRAND FINALE CHAMPIONSHIPS 🏆")
+                    st.header("🏆 FINAL SCOREBOARD 🏆")
                     
                     totals_df = calculate_total_scores(store["playlist"], store["all_guesses"])
                     
@@ -461,7 +461,7 @@ if params.get("role") == "teacher":
                     with col_right:
                         poll_teacher_guess_counter(curr_idx)
                         
-                        if st.button("🏆 Lock & Reveal Map Results", type="primary", use_container_width=True):
+                        if st.button("Lock & Reveal Map Results", type="primary", use_container_width=True):
                             store["show_leaderboard"] = True
                             st.rerun()
 
