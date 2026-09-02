@@ -373,11 +373,11 @@ if params.get("role") == "teacher":
                         
                         m_col1, m_col2, m_col3 = st.columns(3)
                         with m_col1:
-                            st.metric("🎓 Class Average Total Score", f"{avg_class_score:,} pts")
+                            st.metric("Class Average Total Score", f"{avg_class_score:,} pts")
                         with m_col2:
-                            st.metric("🎯 Avg Points / Player / Round", f"{avg_per_round:,} pts")
+                            st.metric("Avg Points / Player / Round", f"{avg_per_round:,} pts")
                         with m_col3:
-                            st.metric("👥 Total Class Participants", f"{total_players} players")
+                            st.metric("Total Class Participants", f"{total_players} players")
 
                     st.markdown("---")
                     if st.button("🔄 Play Again (Reset Scores)", type="primary"):
