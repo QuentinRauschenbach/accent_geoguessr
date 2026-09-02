@@ -47,6 +47,7 @@ def get_global_store():
         "show_leaderboard": False,
         "show_grand_finale": False,
         "game_started": False,
+        "lobby_locked": False,   # NEW: Locks new joins once Round 1 starts
         "game_id": 1             # Cache buster for resets
     }
 
@@ -79,7 +80,7 @@ def calculate_scores(guesses_df, target_lat, target_lon):
     c = 2 * np.arcsin(np.sqrt(a))
     distances = R * c
     
-    # ADJUSTED FOR GLOBAL ACCENTS: Subtracts 0.25 pts per km (reaches 0 at 20,000 km)
+    # Subtracts 0.5 pts per km (reaches 0 at 10,000 km)
     scores = np.clip(5000 - (distances * 0.5), 0, 5000).astype(int)
     guesses_df['distance_km'] = np.round(distances, 1)
     guesses_df['score'] = scores
@@ -116,6 +117,7 @@ def reset_game_data(keep_playlist=True):
     store["show_leaderboard"] = False
     store["show_grand_finale"] = False
     store["game_started"] = False
+    store["lobby_locked"] = False
     store["game_id"] += 1
     if not keep_playlist:
         store["playlist"] = []
@@ -322,6 +324,7 @@ if params.get("role") == "teacher":
                     st.markdown("### Controls")
                     if st.button("Begin Round 1!", type="primary", use_container_width=True):
                         store["active_round_idx"] = 0
+                        store["lobby_locked"] = True  # Locks out late joins
                         st.rerun()
 
             # ACTIVE GAMEPLAY & RESULTS
@@ -359,6 +362,22 @@ if params.get("role") == "teacher":
                             'rounds_played': 'Rounds Played'
                         })
                         st.dataframe(totals_df_display, use_container_width=True, hide_index=True)
+
+                        # --- CLASS COMPARISON STATS ---
+                        st.markdown("---")
+                        st.subheader("📈 Class Overall Benchmark")
+                        
+                        avg_class_score = int(round(totals_df['total_score'].mean()))
+                        total_players = len(totals_df)
+                        avg_per_round = int(round(avg_class_score / total_rounds)) if total_rounds > 0 else 0
+                        
+                        m_col1, m_col2, m_col3 = st.columns(3)
+                        with m_col1:
+                            st.metric("🎓 Class Average Total Score", f"{avg_class_score:,} pts")
+                        with m_col2:
+                            st.metric("🎯 Avg Points / Player / Round", f"{avg_per_round:,} pts")
+                        with m_col3:
+                            st.metric("👥 Total Class Participants", f"{total_players} players")
 
                     st.markdown("---")
                     if st.button("🔄 Play Again (Reset Scores)", type="primary"):
@@ -420,6 +439,10 @@ if params.get("role") == "teacher":
                             })
                             st.dataframe(top_5_round, use_container_width=True, hide_index=True)
 
+                            # --- ROUND AVERAGE STAT ---
+                            round_avg = int(round(results['score'].mean()))
+                            st.caption(f"📊 **Class Round Average:** {round_avg:,} pts")
+
                         if not is_last_round:
                             st.markdown("---")
                             st.subheader("🔥 Top 3 Overall Leaders")
@@ -461,7 +484,7 @@ if params.get("role") == "teacher":
                     with col_right:
                         poll_teacher_guess_counter(curr_idx)
                         
-                        if st.button("Lock & Reveal Map Results", type="primary", use_container_width=True):
+                        if st.button("🏆 Lock & Reveal Map Results", type="primary", use_container_width=True):
                             store["show_leaderboard"] = True
                             st.rerun()
 
@@ -477,8 +500,13 @@ else:
     if not store["playlist"] or not store["game_started"]:
         poll_student_waiting_state()
     else:
-        # STUDENT ENTRY FORM
-        if not st.session_state.my_name:
+        # CHECK IF LOBBY IS LOCKED FOR NEW UNREGISTERED PLAYERS
+        if store["lobby_locked"] and not st.session_state.my_name:
+            st.error("🔒 Game in Progress")
+            st.warning("The lobby is locked because Round 1 has already started. Wait for the teacher to start a new game!")
+        
+        # STUDENT ENTRY FORM (LOBBY OPEN)
+        elif not st.session_state.my_name:
             st.subheader("Join the Game")
             nickname_input = st.text_input("Enter your Nickname:", placeholder="e.g. Alex")
             if st.button("Start Playing ➡️"):
