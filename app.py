@@ -6,6 +6,7 @@ import pandas as pd
 import os
 import qrcode
 from io import BytesIO
+import json
 
 st.set_page_config(page_title="Accent GeoGuessr", layout="wide")
 
@@ -262,7 +263,61 @@ if params.get("role") == "teacher":
                     st.error("⚠️ Please select a map pin AND a media clip file!")
 
             st.markdown("---")
+        
+            st.subheader("💾 Save & Load Playlists (Local JSON)")
+
+            col_json1, col_json2 = st.columns(2)
+
+            # 1. EXPORT/DOWNLOAD CURRENT PLAYLIST
+            with col_json1:
+                st.markdown("#### 📤 Export Current Playlist")
+                if store["playlist"]:
+                    json_data = json.dumps(store["playlist"], indent=2)
+                    st.download_button(
+                        label="💾 Download Playlist (.json)",
+                        data=json_data,
+                        file_name="accent_playlist.json",
+                        mime="application/json",
+                        use_container_width=True
+                    )
+                else:
+                    st.caption("Add rounds to your playlist to enable export.")
+
+            # 2. IMPORT/UPLOAD SAVED PLAYLIST
+            with col_json2:
+                st.markdown("#### 📥 Import Saved Playlist")
+                uploaded_playlist = st.file_uploader(
+                    "Upload a saved playlist (.json):",
+                    type=["json"],
+                    key="local_playlist_importer"
+                )
+                if uploaded_playlist is not None:
+                    try:
+                        loaded_data = json.load(uploaded_playlist)
+                        if isinstance(loaded_data, list):
+                            store["playlist"] = loaded_data
+                            st.success(f"✅ Loaded {len(loaded_data)} rounds successfully!")
+                            st.rerun()
+                        else:
+                            st.error("Invalid file format. Must be a valid playlist JSON.")
+                    except Exception as e:
+                        st.error(f"Error reading JSON file: {e}")
+
+            st.markdown("---")
             st.subheader("⚙️ Game Control & Reset")
+            
+            col_res1, col_res2 = st.columns(2)
+            with col_res1:
+                if st.button("🔄 Reset Scores (Keep Playlist)"):
+                    reset_game_data(keep_playlist=True)
+                    st.success("Game reset! Playlist kept, scores cleared.")
+                    st.rerun()
+
+            with col_res2:
+                if st.button("🗑️ Delete Everything & Reset"):
+                    reset_game_data(keep_playlist=False)
+                    st.warning("All game data and playlist wiped clean.")
+                    st.rerun()
             
             col_res1, col_res2 = st.columns(2)
             with col_res1:
