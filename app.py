@@ -627,7 +627,7 @@ else:
                 def render_student_status():
                     # Check live state inside fragment polling
                     results_revealed = (
-                        store.get("show_results", False) and store["active_round_idx"] == curr_idx
+                        store.get("show_leaderboard", False) and store["active_round_idx"] == curr_idx
                     ) or (store["active_round_idx"] > curr_idx)
 
                     if results_revealed:
