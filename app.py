@@ -622,58 +622,58 @@ else:
 
             if st.session_state[lock_key]:
                 st.success(f"🔒 Round {curr_round_num} Guess Locked In!")
-                
-                # Check if teacher revealed results for THIS round, or if we moved past it
-                results_revealed = (
-                    store.get("show_results", False) and store["active_round_idx"] == curr_idx
-                ) or (store["active_round_idx"] > curr_idx)
 
-                if results_revealed:
-                    # Reveal rank, round points, and total score ONCE teacher clicks reveal
-                    stats = get_student_stats(st.session_state.my_name, store["playlist"], store["all_guesses"])
-                    
-                    st.markdown("### 📊 Your Round & Game Stats")
-                    sc_col1, sc_col2 = st.columns(2)
-                    
-                    with sc_col1:
-                        st.metric(
-                            label="Points This Round", 
-                            value=f"{stats['last_round_score']:,} pts"
-                        )
-                        
-                        # Format rank change indicator
-                        if stats['rank_change'] > 0:
-                            delta_str = f"🟢 +{stats['rank_change']} place(s)"
-                        elif stats['rank_change'] < 0:
-                            delta_str = f"🔴 {stats['rank_change']} place(s)"
-                        else:
-                            delta_str = "➡️ No change"
-                            
-                        st.metric(
-                            label="Leaderboard Rank", 
-                            value=f"#{stats['rank']}" if stats['rank'] > 0 else "-",
-                            delta=delta_str
-                        )
-
-                    with sc_col2:
-                        st.metric(
-                            label="Total Score", 
-                            value=f"{stats['total_score']:,} pts"
-                        )
-
-                    st.info("👀 Look at the main projector screen for map details!")
-                else:
-                    # Still waiting for teacher to lock/reveal
-                    st.info("⏳ Waiting for teacher to reveal the results on the main screen...")
-
-                # Auto-rerun to catch when teacher reveals results or advances round
                 @st.fragment(run_every=2)
-                def poll_round_status():
-                    current_revealed = store.get("show_results", False)
-                    if store["active_round_idx"] != curr_idx or current_revealed != results_revealed:
-                        st.rerun()
+                def render_student_status():
+                    # Check live state inside fragment polling
+                    results_revealed = (
+                        store.get("show_results", False) and store["active_round_idx"] == curr_idx
+                    ) or (store["active_round_idx"] > curr_idx)
+
+                    if results_revealed:
+                        # Reveal rank, round points, and total score ONCE teacher clicks reveal
+                        stats = get_student_stats(st.session_state.my_name, store["playlist"], store["all_guesses"])
                         
-                poll_round_status()
+                        st.markdown("### 📊 Your Round & Game Stats")
+                        sc_col1, sc_col2 = st.columns(2)
+                        
+                        with sc_col1:
+                            st.metric(
+                                label="Points This Round", 
+                                value=f"{stats['last_round_score']:,} pts"
+                            )
+                            
+                            # Format rank change indicator
+                            if stats['rank_change'] > 0:
+                                delta_str = f"🟢 +{stats['rank_change']} place(s)"
+                            elif stats['rank_change'] < 0:
+                                delta_str = f"🔴 {stats['rank_change']} place(s)"
+                            else:
+                                delta_str = "➡️ No change"
+                                
+                            st.metric(
+                                label="Leaderboard Rank", 
+                                value=f"#{stats['rank']}" if stats['rank'] > 0 else "-",
+                                delta=delta_str
+                            )
+
+                        with sc_col2:
+                            st.metric(
+                                label="Total Score", 
+                                value=f"{stats['total_score']:,} pts"
+                            )
+
+                        st.info("👀 Look at the main projector screen for map details!")
+                    else:
+                        # Still waiting for teacher to lock/reveal
+                        st.info("⏳ Waiting for teacher to reveal the results on the main screen...")
+
+                    # If teacher advances to the next round, trigger a full page refresh
+                    if store["active_round_idx"] != curr_idx:
+                        st.rerun()
+
+                # Execute the fragment
+                render_student_status()
             else:
                 st.subheader(f"Round {curr_round_num}")
                 st.write(f"Playing as: **{st.session_state.my_name}**")
