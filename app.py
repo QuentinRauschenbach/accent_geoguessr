@@ -319,18 +319,6 @@ if params.get("role") == "teacher":
                     st.warning("All game data and playlist wiped clean.")
                     st.rerun()
             
-            col_res1, col_res2 = st.columns(2)
-            with col_res1:
-                if st.button("🔄 Reset Scores (Keep Playlist)"):
-                    reset_game_data(keep_playlist=True)
-                    st.success("Game reset! Playlist kept, scores cleared.")
-                    st.rerun()
-
-            with col_res2:
-                if st.button("🗑️ Delete Everything & Reset"):
-                    reset_game_data(keep_playlist=False)
-                    st.warning("All game data and playlist wiped clean.")
-                    st.rerun()
 
         st.markdown("---")
         st.subheader("🗺️ Playlist Overview Map")
