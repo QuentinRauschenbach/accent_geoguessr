@@ -643,18 +643,14 @@ else:
                                 value=f"{stats['last_round_score']:,} pts"
                             )
                             
-                            # Format rank change indicator
-                            if stats['rank_change'] > 0:
-                                delta_str = f"🟢 +{stats['rank_change']} place(s)"
-                            elif stats['rank_change'] < 0:
-                                delta_str = f"🔴 {stats['rank_change']} place(s)"
-                            else:
-                                delta_str = "➡️ No change"
-                                
+                            # Let Streamlit handle colors & arrows automatically via numeric delta
+                            rank_delta = stats['rank_change']
+                            delta_text = f"{rank_delta} place(s)" if rank_delta != 0 else "No change"
+                            
                             st.metric(
                                 label="Leaderboard Rank", 
                                 value=f"#{stats['rank']}" if stats['rank'] > 0 else "-",
-                                delta=delta_str
+                                delta=delta_text
                             )
 
                         with sc_col2:
