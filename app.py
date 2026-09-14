@@ -286,16 +286,21 @@ if params.get("role") == "teacher":
             # 2. IMPORT/UPLOAD SAVED PLAYLIST
             with col_json2:
                 st.markdown("#### 📥 Import Saved Playlist")
+                
+                if "json_uploader_key" not in st.session_state:
+                    st.session_state.json_uploader_key = 0
+
                 uploaded_playlist = st.file_uploader(
                     "Upload a saved playlist (.json):",
                     type=["json"],
-                    key="local_playlist_importer"
+                    key=f"local_playlist_importer_{st.session_state.json_uploader_key}"
                 )
                 if uploaded_playlist is not None:
                     try:
                         loaded_data = json.load(uploaded_playlist)
                         if isinstance(loaded_data, list):
                             store["playlist"] = loaded_data
+                            st.session_state.json_uploader_key += 1
                             st.success(f"✅ Loaded {len(loaded_data)} rounds successfully!")
                             st.rerun()
                         else:
